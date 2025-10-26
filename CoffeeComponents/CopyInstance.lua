@@ -3,7 +3,7 @@
 	Copyright © 2025 Coffilhg
 	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
 	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/tree/main
-	Plugin Version: 1.2.0
+	Plugin Version: 2.0.0
 --]]
 local Players = game:GetService("Players")
 
@@ -86,6 +86,7 @@ local reservedKeywords = {
 	["return"] = true, ["then"] = true, ["true"] = true, ["until"] = true,
 	["while"] = true, ["continue"] = true,
 	["C"] = true, -- Create Instance function
+	["Component"] = true, -- Link to the Loader module
 	["T"] = true, -- Dictionary for Tags
 	["A"] = true, -- Dictionary for Attributes
 	["Secret"] = true,
@@ -789,13 +790,21 @@ function module.GenerateCode(
 	
 	local header = [[local module = {}
 
+local C : (className : string, parent : Instance, props : {[string]: (any)}?, tags : {[number]: string}?, attributes : {[string]: (any)}?) -> Instance, Component : {
+	[string] : ModuleScript,
+	["new"]: (componentName : string, parent : Instance, any) -> any,
+}
+
 function module.new(
-	C : (string, Instance, {any}) -> Instance, -- createInstance
-	parent : Instance,
-	Component : {
-		["new"]: (componentName : string, parent : Instance, any) -> any,
-	}
-) : ]] .. mainType
+	parent : Instance 
+) : ]] .. mainType .. [[
+	
+	if not C then
+		repeat task.wait() C = module["CreateInstance"] until C
+	end
+	if not Component then
+		repeat task.wait() Component = module["Component"] until Component
+	end]]
 	
 
 

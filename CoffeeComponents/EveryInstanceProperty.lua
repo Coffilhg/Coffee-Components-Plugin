@@ -3,7 +3,7 @@
 	Copyright © 2025 Coffilhg
 	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
 	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/tree/main
-	Plugin Version: 1.2.0
+	Plugin Version: 2.0.0
 --]]
 
 
@@ -14,7 +14,7 @@ local RS = game:GetService("ReplicatedStorage")
 local CS = game:GetService("CollectionService")
 local Selection = game:GetService("Selection") :: Selection
 
-local PluginVersion = 1.2
+local PluginVersion = 2
 
 if RunS:IsRunning() then 
 	script.Enabled = false 
@@ -331,7 +331,7 @@ function CreateCoffeeComponentsBaseModule()
 	module:AddTag("CoffeeComponents")
 	module.Parent = RS
 	module.Source = `--- @Coffilhg | Coffee Components | [V{PluginVersion}] ---\n`..[[
-function createInstance(className, parent, props, tags, attributes)
+function createInstance(className : string, parent : Instance, props : {[string]: (any)}?, tags : {[number]: string}?, attributes : {[string]: (any)}?) : Instance
 	local newInstance = Instance.new(className, parent) :: Instance
 	
 	for propName, propVal in pairs(props) do
@@ -353,18 +353,32 @@ function createInstance(className, parent, props, tags, attributes)
 	return newInstance
 end
 
+-- Load components for use via .new; No typization/autofills will be shown.
 local Components = {}
--- late load components --
-for _, component in ipairs(script:GetChildren()) do
-	if Components[component.Name] then
-		continue
-	end
-	Components[component.Name] = require(component)
-end
 
 
 
 local module = {}
+
+-- Manually load components to enable typization and autofills (straight access) e.g.:
+-- module.COMPONENTNAME = require(script.COMPONENTNAME)
+
+-- late load components --
+for _, component in ipairs(script:GetChildren()) do
+	local componentName = component.Name
+	assert(componentName ~= "new", `Never name a Component "new"; Consider Renaming all Components named "new".`)
+	
+	local componentModule = Components[componentName] or module[componentName]
+	if not componentModule then
+		componentModule = require(component)
+		Components[componentName] = componentModule
+	end
+	
+	module[componentName] = componentModule -- that's why never name a Component "new".
+	
+	componentModule["CreateInstance"] = createInstance
+	componentModule["Component"] = module
+end
 
 -- Calls the .new() for the given "<strong>componentName</strong>" Module
 function module.new(componentName : string, parent : Instance, ...)
@@ -373,7 +387,7 @@ function module.new(componentName : string, parent : Instance, ...)
 		error(`Component "{componentName}" Not Found!`)
 		return nil
 	end
-	return component.new(createInstance, parent, module, ...)
+	return component.new(parent, ...)
 end
 
 return module]]
