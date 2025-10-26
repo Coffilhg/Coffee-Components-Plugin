@@ -1,5 +1,5 @@
 # ☕ Coffee Components — Roblox Plugin
--# (Coffee-Components-Plugin)
+#### (Coffee-Components-Plugin)
 
 **Turn any selected Instances into reusable `Instance.new()` module code.**  
 Build Roblox interfaces (and pretty much anything) the *React way* — modular, declarative, and fast.
