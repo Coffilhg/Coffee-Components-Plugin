@@ -19,7 +19,7 @@ Once generated, you can reuse them just like React components - create, customiz
 
 Get the plugin from the [Creator Hub / Toolbox](https://create.roblox.com/store/asset/78239748407454)
 Or download and set it up manually:
-1. Download - [CoffeeComponents___V2.rbxm](https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/CoffeeComponents___V2.rbxm)
+1. Download - [CoffeeComponents___V2_1.rbxm](https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/CoffeeComponents___V2_1.rbxm)
 2. Insert it into Studio (Drag the file into Roblox Studio)
 3. Right-Mouse-Click the Folder you just inserted
 4. Save / Export
@@ -30,7 +30,7 @@ Or download and set it up manually:
 
 ## 🧩 Technical Notes
 
-The Entry Point is [EveryInstanceProperty.lua](https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/CoffeeComponents/EveryInstanceProperty.lua); everything else is a ModuleScript .
+The Entry Point is [EveryInstanceProperty.luau](https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/CoffeeComponents/EveryInstanceProperty.luau); everything else is a ModuleScript .
 
 Some Instance Classes don’t replicate perfectly:
 - **Scripts, LocalScripts and ModuleScripts** will only be copied without their Content, because Content property cannot be set during runtime - only Plugins/Roblox/Manual Input has permission to do so.

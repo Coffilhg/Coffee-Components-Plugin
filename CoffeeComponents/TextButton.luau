@@ -2,18 +2,29 @@
 	MIT License
 	Copyright © 2025 Coffilhg
 	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
-	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/tree/main
-	Plugin Version: 1.2.0
+	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/LICENSE
+	Plugin Version: 2.1.0
 --]]
 local module = {}
 
+local C : (className : string, parent : Instance, props : {[string]: (any)}?, tags : {[number]: string}?, attributes : {[string]: (any)}?) -> Instance, Component : {
+	[string] : ModuleScript,
+	["new"]: (componentName : string, parent : Instance, any) -> any,
+}
+
 function module.new(
-	C : (string, Instance, {any}) -> Instance, -- createInstance
 	parent : Instance,
 	colors : {Color3},
 	TextContent : string,
 	clickCallback : () -> any
 ) : TextButton
+	if not C then
+		repeat task.wait() C = module["CreateInstance"] until C
+	end
+	if not Component then
+		repeat task.wait() Component = module["Component"] until Component
+	end
+	
 	local Main = C("TextButton", parent, {
 		Name = "TextButton",
 		Font = Enum.Font.Unknown,
@@ -97,11 +108,11 @@ function module.new(
 		Archivable = true,
 		Sandboxed = false,
 	})
-	
+
 	if clickCallback then
 		Main.MouseButton1Click:Connect(clickCallback)
 	end
-	
+
 	return Main
 end
 

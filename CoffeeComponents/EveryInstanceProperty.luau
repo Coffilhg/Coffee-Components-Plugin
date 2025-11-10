@@ -2,8 +2,8 @@
 	MIT License
 	Copyright © 2025 Coffilhg
 	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
-	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/tree/main
-	Plugin Version: 2.0.0
+	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/LICENSE
+	Plugin Version: 2.1.0
 --]]
 
 
@@ -14,7 +14,7 @@ local RS = game:GetService("ReplicatedStorage")
 local CS = game:GetService("CollectionService")
 local Selection = game:GetService("Selection") :: Selection
 
-local PluginVersion = 2
+local PluginVersion = 2.1
 
 if RunS:IsRunning() then 
 	script.Enabled = false 
@@ -45,7 +45,7 @@ end)
 -- Modules --
 local API_DumpModule = require(script.Data)
 local CopyInstance = require(script.CopyInstance)
-local Component = require(script.CoffeeComponents)
+local Component = require(script.Components)
 -- Globals --
 local Colors = {
 	Color3.fromRGB(59, 47, 47),
@@ -300,13 +300,13 @@ function SortAPIDump()
 	end
 
 	DisplayPrint("Complete Sorted API with Inheritance retrieved successfully!")
-	
+
 	LastSortedVersion = LastRetrievedVersion
 	SortedAPIDump = completeSortedAPIDump
 
 	plugin:SetSetting("SortedAPIDumpVersion", LastRetrievedVersion)
 	plugin:SetSetting("SortedAPIDumpData", completeSortedAPIDump)
-	
+
 	if UpdateSortedData then
 		UpdateSortedData.Text = `Sort API Dump {GetMarkerText(true)}`
 	end
@@ -317,7 +317,7 @@ function IsSortedAPIDumpUpToDate() : boolean
 end
 function EnsureSortedAPIDump()
 	if IsSortedAPIDumpUpToDate() then return end
-	
+
 	SortAPIDump()
 end
 SortAPIDump()
@@ -330,7 +330,49 @@ function CreateCoffeeComponentsBaseModule()
 	module.Name = "Components"
 	module:AddTag("CoffeeComponents")
 	module.Parent = RS
-	module.Source = `--- @Coffilhg | Coffee Components | [V{PluginVersion}] ---\n`..[[
+	
+	local attributeModule = module:Clone()
+	attributeModule.Name = "Attribute"
+	attributeModule.Parent = module
+	
+	attributeModule.Source = "--[[--" .. [[
+
+
+	Coffee Components was developed by @Coffilhg
+
+	By using Coffee Components in your experience or application, you agree to either:
+		1. Keep Attribute unchanged, or
+		2. If an experience, to credit Coffee Components in your description, or in a
+		   devforum post linked from your experience's description.
+
+	V]]..`{PluginVersion}`..[[ has involved over 70 hours of work to develop, so please consider supporting
+	its development by reporting any issues or feedback you have at its repository:
+	https://github.com/Coffilhg/Coffee-Components-Plugin
+
+	You can get in touch with me on Discord via the social link here:
+	https://create.roblox.com/store/asset/78239748407454/Coffee-Components
+
+	Many thanks! ~ Coffilhg, November 10th 2025
+	
+]] .. "--]]--" .. [[
+
+
+task.defer(function()
+	local RunService = game:GetService("RunService")
+	if not RunService:IsStudio() then
+		print(`☕ Running CoffeeComponents [V]]..`{PluginVersion}]`..[[ by @Coffilhg`)
+	end
+end)
+
+return {}
+]]
+	module.Source = [[--[[--
+	MIT License
+	Copyright © 2025 Coffilhg
+	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
+	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/LICENSE
+	Plugin Version: 2.1.0
+]].."--]]--"..`\n\n--- @Coffilhg | Coffee Components | [V{PluginVersion}] ---\n`..[[
 function createInstance(className : string, parent : Instance, props : {[string]: (any)}?, tags : {[number]: string}?, attributes : {[string]: (any)}?) : Instance
 	local newInstance = Instance.new(className, parent) :: Instance
 	
@@ -360,8 +402,10 @@ local Components = {}
 
 local module = {}
 
--- Manually load components to enable typization and autofills (straight access) e.g.:
--- module.COMPONENTNAME = require(script.COMPONENTNAME)
+-- Manually load components to enable typization and autofills (straight access)
+-- module.COMPONENTNAME = require(script.COMPONENTNAME) -- example
+
+
 
 -- late load components --
 for _, component in ipairs(script:GetChildren()) do
@@ -371,10 +415,10 @@ for _, component in ipairs(script:GetChildren()) do
 	local componentModule = Components[componentName] or module[componentName]
 	if not componentModule then
 		componentModule = require(component)
-		Components[componentName] = componentModule
 	end
 	
 	module[componentName] = componentModule -- that's why never name a Component "new".
+	Components[componentName] = componentModule
 	
 	componentModule["CreateInstance"] = createInstance
 	componentModule["Component"] = module
@@ -390,9 +434,11 @@ function module.new(componentName : string, parent : Instance, ...)
 	return component.new(parent, ...)
 end
 
+require(script.Attribute)
+
 return module]]
 	DisplayPrint(`Created Components Module!\n{GetPathRecursively(module)}`)
-	
+
 	return module
 end
 function SearchForCoffeeComponents()
@@ -422,12 +468,12 @@ function CopySelection()
 	CopyInstance.SetSortedAPIDump(SortedAPIDump)
 	local instancesToCopy = Selection:Get()
 	local success, result = CopyInstance.GenerateCode(instancesToCopy, DisplayPrint)
-	
+
 	if not success then
 		DisplayPrint(`Error: {result}`)
 		return
 	end
-	
+
 	EnsureCoffeeComponentsModule()
 	local module = Instance.new("ModuleScript")
 	module.Name = result.ModuleName

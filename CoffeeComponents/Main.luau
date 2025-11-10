@@ -2,21 +2,31 @@
 	MIT License
 	Copyright © 2025 Coffilhg
 	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
-	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/tree/main
-	Plugin Version: 1.2.0
+	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/LICENSE
+	Plugin Version: 2.1.0
 --]]
 local module = {}
 
+local C : (className : string, parent : Instance, props : {[string]: (any)}?, tags : {[number]: string}?, attributes : {[string]: (any)}?) -> Instance, Component : {
+	[string] : ModuleScript,
+	["new"]: (componentName : string, parent : Instance, any) -> any,
+}
+
 function module.new(
-	createInstance : (string, Instance, {any}) -> Instance,
 	parent : Instance,
 	colors : {Color3}
 ) : (ImageLabel, ScrollingFrame)
-	local Main_1 = createInstance("ImageLabel", parent, {
+	if not C then
+		repeat task.wait() C = module["CreateInstance"] until C
+	end
+	if not Component then
+		repeat task.wait() Component = module["Component"] until Component
+	end
+	
+	local Main_1 = C("ImageLabel", parent, {
 		Name = "ImageLabel",
 		Image = "",
 		ImageColor3 = Color3.fromRGB(255, 255, 255),
-		ImageContent = "Content",
 		ImageRectOffset = Vector2.new(0, 0),
 		ImageRectSize = Vector2.new(0, 0),
 		ImageTransparency = 0,
@@ -54,24 +64,21 @@ function module.new(
 		Archivable = true,
 		Sandboxed = false,
 	})
-	local Main_2 = createInstance("ScrollingFrame", parent, {
+	local Main_2 = C("ScrollingFrame", parent, {
 		Name = "ScrollingFrame",
 		AutomaticCanvasSize = Enum.AutomaticSize.None,
 		BottomImage = "rbxasset://textures/ui/Scroll/scroll-bottom.png",
-		BottomImageContent = "Content",
 		CanvasPosition = Vector2.new(0, 0),
 		CanvasSize = UDim2.new(0, 0, 2, 0),
 		ElasticBehavior = Enum.ElasticBehavior.Always,
 		HorizontalScrollBarInset = Enum.ScrollBarInset.Always,
 		MidImage = "rbxasset://textures/ui/Scroll/scroll-middle.png",
-		MidImageContent = "Content",
 		ScrollBarImageColor3 = colors[5],
 		ScrollBarImageTransparency = 0,
 		ScrollBarThickness = 12,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		ScrollingEnabled = true,
 		TopImage = "rbxasset://textures/ui/Scroll/scroll-top.png",
-		TopImageContent = "Content",
 		VerticalScrollBarInset = Enum.ScrollBarInset.Always,
 		VerticalScrollBarPosition = Enum.VerticalScrollBarPosition.Right,
 		Active = true,
@@ -103,7 +110,7 @@ function module.new(
 		Archivable = true,
 		Sandboxed = false,
 	}) :: ScrollingFrame
-	local Main_2_5 = createInstance("UIListLayout", Main_2, {
+	local Main_2_5 = C("UIListLayout", Main_2, {
 		Name = "UIListLayout",
 		HorizontalFlex = Enum.UIFlexAlignment.None,
 		ItemLineAlignment = Enum.ItemLineAlignment.Automatic,
@@ -118,19 +125,19 @@ function module.new(
 		Parent = Main_2,
 		Sandboxed = false,
 	}) :: UIListLayout
-	
+
 	local function adjustSize()
 		--print("!")
 		Main_2.CanvasSize = UDim2.new(0, 0, 0, Main_2_5.AbsoluteContentSize.Y)
 	end
-	
+
 	Main_2.DescendantAdded:Connect(function(descendant : Instance)
 		if descendant:IsA("GuiObject") then
 			descendant:GetPropertyChangedSignal("Size"):Connect(adjustSize)
 		end
 		adjustSize()
 	end)
-	
+
 	return Main_1, Main_2
 end
 

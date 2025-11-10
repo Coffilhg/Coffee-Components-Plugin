@@ -2,8 +2,8 @@
 	MIT License
 	Copyright © 2025 Coffilhg
 	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
-	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/tree/main
-	Plugin Version: 2.0.0
+	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/LICENSE
+	Plugin Version: 2.1.0
 --]]
 local Players = game:GetService("Players")
 
@@ -154,7 +154,7 @@ function CustomDictionaryMetatable:GetVariableName(variableValue: string, unreli
 	if variableName or unreliable then
 		return variableName
 	end
-	
+
 	return self:CreateVariable(variableValue)
 end
 
@@ -184,7 +184,7 @@ local function round(v)
 			return tostring(number)
 		end
 	end
-	
+
 	return stringR
 	--return tonumber(string.format("%."..precision.."f", v))
 end
@@ -449,7 +449,7 @@ function module.GenerateCode(
 		["Result"]: string,
 		["ModuleName"]: string,
 	}
-)
+	)
 	if not SortedAPIDump then
 		return false, "No SortedAPIDump Set!"
 	end
@@ -462,27 +462,27 @@ function module.GenerateCode(
 	if #mainParents <= 0 then
 		return false, "mainParents: Non-Empty Array expected, got Dictionary"
 	end
-	
+
 	codegenStarted = true
-	
+
 	local parsedPropertiesVariables = newVariableDictionary("Variables")
 	local TagVariables = newVariableDictionary("T")
 	local AttributeVariables = newVariableDictionary("A")
-	
+
 	--- Reset ---
 	seenParsedProperties = {}
 	--parsedPropertiesVariables = {}
 	spaceCharacter = removeSpaces and "" or " "
 	useNames = mainParentString == nil
-	
+
 	--currentIndex = 1 -- Tracks position in charDictionary
 	--letterCount = 1 -- Number of characters in the variable name
 	--currentCombo = {1} -- Tracks the current combination of indices
-	
+
 	usedWarnMessages = {}
 	ignoredCharacterModels = {}
 	takenVariableNames = {}
-	
+
 	rateLimit = math.clamp(rateLimitingWaitInterval, 0.03, 1)/1*maxInstancesPerSecond
 	--- /E Reset ---
 	--- Local Globals ---
@@ -491,11 +491,11 @@ function module.GenerateCode(
 	propertyPrefix = prettyProperties and "\n\t\t" or ""
 	propertyTableWrap = prettyProperties and "\n" or ""
 	local variablePrefix = writeAsLocalVariables and "local " or ""
-	
+
 	local totalInstances = 0
 	local totalCopied = 0
 	local resultShards = {}
-	
+
 	local function progressCallback(progress)
 		displayPrint(`{math.round(progress*10000)/100}%`)
 	end
@@ -506,7 +506,7 @@ function module.GenerateCode(
 			count(child)
 		end
 	end
-	
+
 	--- Core ---
 	local function copyInstance(instanceToCopy : Instance, parentVariable, variableName, canBeUndefined, propertiesOnly)
 		local instanceClassName = instanceToCopy.ClassName
@@ -551,7 +551,7 @@ function module.GenerateCode(
 
 		local function parseProperty(propName, propType, propValue)
 			if isAlreadyParsed(propName, true) then return end
-			
+
 			local parsedPropValue = try(propType, propValue)
 
 			if parsedPropValue ~= "Exception_NotFound" then
@@ -563,18 +563,18 @@ function module.GenerateCode(
 
 		for _, member in ipairs(classInfo.Members) do
 			local propName = member["Name"]
-			
+
 			if blacklistedPropNames[propName] then
 				continue
 			end
-			
+
 			--- EXCEPTION (for Text Gui Objects) ---
 			if propName == "Transparency" then
 				if string.find(instanceClassName, "Text") then
 					propName = "TextTransparency"
 				end
 			end
-			
+
 			local valueType = member["ValueType"]
 			local category = valueType["Category"]
 
@@ -618,27 +618,27 @@ function module.GenerateCode(
 				if cb then cb(propName, propType, propValue) end
 			end
 		end
-		
+
 		if not propertiesOnly then
 			--- Close the properties table
 			table.insert(parts, {v = propertyTableWrap})
 			------ Parse Tags and Attributes ------			
 			local instanceTags = instanceToCopy:GetTags()
 			local instanceAttributes = instanceToCopy:GetAttributes()
-			
+
 			local instanceAttributesNum = 0
 			local attributesParts = {}
-			
+
 			for attributeName, attributeValue in pairs(instanceAttributes) do
 				instanceAttributesNum += 1
 				local attributeNameVariable = AttributeVariables:GetVariableName(attributeName)
 				local parsedAttributeValue = try(typeof(attributeValue), attributeValue)
-				
+
 				if parsedAttributeValue == "Exception_NotFound" then
 					warn("{\n\tCouldn't copy attribute:", attributeName, "\n\tfor instance:", instanceToCopy, "\n}")
 					continue
 				end
-				
+
 				if seenParsedProperties[parsedAttributeValue] then
 					local variable = parsedPropertiesVariables:GetVariableName(parsedAttributeValue)
 					table.insert(attributesParts, {v = `\t{propertyPrefix}[A.{attributeNameVariable}]={variable},`})
@@ -647,7 +647,7 @@ function module.GenerateCode(
 				end
 				seenParsedProperties[parsedAttributeValue] = true
 			end
-			
+
 			if #instanceTags < 1 and instanceAttributesNum < 1 then
 				table.insert(parts, {v = "\t})"}) -- close the default properties
 			else
@@ -657,8 +657,8 @@ function module.GenerateCode(
 					table.insert(parts, {v = `\t{propertyPrefix}T.{tagVariableName},`})
 				end
 				table.insert(parts, {v = propertyTableWrap .. "\t}"})
-				
-				
+
+
 				if instanceAttributesNum > 0 then
 					table.insert(parts, {v = "," .. propertyTableWrap .. "\t{"})
 					for _, part in ipairs(attributesParts) do
@@ -666,19 +666,19 @@ function module.GenerateCode(
 					end
 					table.insert(parts, {v = propertyTableWrap .. "\t}"})
 				end
-				
-				
-				
+
+
+
 				table.insert(parts, {v = ")"})
 			end
-			
-			
-			
+
+
+
 			if addTypization then
 				table.insert(parts, {v = " :: " .. instanceClassName})
 			end
 		end
-		
+
 		totalCopied += 1
 		if totalCopied % rateLimit == 0 then
 			task.wait(rateLimitingWaitInterval)
@@ -721,27 +721,27 @@ function module.GenerateCode(
 	local serviceResultShards = {}
 
 
-	
+
 	local mainType = ""
 	local mainTypes = {}
 	local mainVariables = {}
 	local sortedMainParents = {}
 	for _, mainParent in ipairs(mainParents) do
-		
+
 		if typeof(mainParent) ~= "Instance" then continue end
 		if not canCountInstance(mainParent) then continue end
-		
+
 		local instanceClassName = mainParent.ClassName
 		if blacklistedClassNames[instanceClassName] then
 			oneTimeWarn(`Not Copying ClassName [{instanceClassName}]; Blacklisted!`)
 			continue
 		end
-		
+
 		count(mainParent)
 		table.insert(mainTypes, instanceClassName)
-		
-		
-		
+
+
+
 		local mainParentVariable = createVariableName(mainParent, mainParentString, nil) -- mainParentString or toPascalCase(mainParents.Name)
 		if mainParent.Parent == game then
 			table.insert(resultParts, `{mainParentVariable} = game:GetService("{mainParent.ClassName}"){addTypization and ` :: {mainParent.ClassName}` or ""}`)
@@ -764,7 +764,7 @@ function module.GenerateCode(
 		else
 			table.insert(resultShards, copyInstance(mainParent, `parent`, mainParentVariable))
 		end
-		
+
 		table.insert(mainVariables, mainParentVariable)
 		sortedMainParents[mainParentVariable] = mainParent
 	end
@@ -773,7 +773,7 @@ function module.GenerateCode(
 	else
 		mainType = mainTypes[1]
 	end
-	
+
 	displayPrint("Analyzing Properties For "..tostring(totalInstances).." Instances")
 
 	for mainParentVariable, mainParent in pairs(sortedMainParents) do
@@ -781,13 +781,13 @@ function module.GenerateCode(
 	end
 
 
-	
-	
+
+
 	--- Assemble the final string ---
 	displayPrint("Generating Output String")
-	
-	
-	
+
+
+
 	local header = [[local module = {}
 
 local C : (className : string, parent : Instance, props : {[string]: (any)}?, tags : {[number]: string}?, attributes : {[string]: (any)}?) -> Instance, Component : {
@@ -805,7 +805,7 @@ function module.new(
 	if not Component then
 		repeat task.wait() Component = module["Component"] until Component
 	end]]
-	
+
 
 
 	local totalOperationCount = #resultShards + 3
@@ -815,9 +815,9 @@ function module.new(
 		operationsDone += (delta or 1)
 		progressCallback(operationsDone/totalOperationCount)
 	end
-	
-	
-	
+
+
+
 	--- Build Tags Variables Part
 	local TagShards = {"T = {"}
 	for tag, variable in pairs(TagVariables.Variables) do
@@ -827,7 +827,7 @@ function module.new(
 	if #TagShards > 2 then
 		table.insert(resultParts, table.concat(TagShards, "\n"))
 	end
-	
+
 	--- Build Attributes Variables Part
 	local AttributeShards = {"A = {"}
 	for attributeName, variable in pairs(AttributeVariables.Variables) do
@@ -837,7 +837,7 @@ function module.new(
 	if #AttributeShards > 2 then
 		table.insert(resultParts, table.concat(AttributeShards, "\n"))
 	end
-	
+
 	--- Build variables result Part
 	local variableShards = {}
 	for value, variable in pairs(parsedPropertiesVariables.Variables) do
@@ -849,13 +849,13 @@ function module.new(
 		table.insert(resultParts, table.concat(variableShards, "\n"))
 		operationDone()
 	end
-	
-	
-	
+
+
+
 	table.insert(resultParts, header)
-	
-	
-	
+
+
+
 	if #serviceResultShards > 0 then
 		local stringResultShards = {}
 		for _, copiedInstanceParts in ipairs(serviceResultShards) do
@@ -876,9 +876,9 @@ function module.new(
 		table.insert(resultParts, table.concat(stringResultShards, "\n"))
 		operationDone()
 	end
-	
-	
-	
+
+
+
 	--print(resultShards)
 	--- Build resultPiece efficiently
 	if #resultShards > 0 then
@@ -886,20 +886,20 @@ function module.new(
 		for _, copiedInstanceParts in ipairs(resultShards) do
 			local parts = {}
 			for _, part in ipairs(copiedInstanceParts) do
-				
+
 				if part["t"] then
 					local propName, parsedPropValue = table.unpack(part.v)
 					local isAttribute = part["a"]
 					local usedVariableDictionary = isAttribute and AttributeVariables or parsedPropertiesVariables
-					
+
 					local variable = usedVariableDictionary:GetVariableName(parsedPropValue, true) --parsedPropertiesVariables[parsedPropValue]
-					
+
 					if isAttribute then
 						table.insert(parts, `\t{propertyPrefix}[A.{propName}]={variable or parsedPropValue},`)
 					else -- regular property
 						table.insert(parts, `\t{propertyPrefix}{propName}={variable or parsedPropValue},`)
 					end
-					
+
 					continue
 				end
 				table.insert(parts, part.v)
@@ -912,16 +912,16 @@ function module.new(
 		table.insert(resultParts, table.concat(stringResultShards, "\n"))
 		operationDone()
 	end
-	
+
 	table.insert(resultParts, `\treturn {table.concat(mainVariables, ", ")}\nend\n\nreturn module`)
 
 	local result = table.concat(resultParts, "\n\n")
 	displayPrint(`Output length {#result}`)
-	
+
 	operationDone()
 	progressCallback(1)
 	codegenStarted = false
-	
+
 	if #result <= stringLimit then
 		return true, {
 			Result = result,

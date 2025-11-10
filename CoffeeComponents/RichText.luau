@@ -2,13 +2,17 @@
 	MIT License
 	Copyright © 2025 Coffilhg
 	This plugin is licensed under the MIT License. Users must include attribution to "Coffilhg" (Roblox UserId 517222346) in game credits.
-	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/tree/main
-	Plugin Version: 1.2.0
+	Full license: https://github.com/Coffilhg/Coffee-Components-Plugin/blob/main/LICENSE
+	Plugin Version: 2.1.0
 --]]
 local module = {}
 
+local C : (className : string, parent : Instance, props : {[string]: (any)}?, tags : {[number]: string}?, attributes : {[string]: (any)}?) -> Instance, Component : {
+	[string] : ModuleScript,
+	["new"]: (componentName : string, parent : Instance, any) -> any,
+}
+
 function module.new(
-	createInstance : (string, Instance, {any}) -> Instance,
 	parent : Instance,
 	TextContent : string,
 	LayoutOrder : number,
@@ -17,8 +21,15 @@ function module.new(
 	TextColor : Color3,
 	YPadding : number
 ) : TextLabel
+	if not C then
+		repeat task.wait() C = module["CreateInstance"] until C
+	end
+	if not Component then
+		repeat task.wait() Component = module["Component"] until Component
+	end
+	
 	local InitialSize = UDim2.new(Width and Width.Scale or 0, Width and Width.Offset or 0, 0, 0)
-	local Main = createInstance("TextLabel", parent, {
+	local Main = C("TextLabel", parent, {
 		Name = "TextLabel",
 		Font = Enum.Font.Unknown,
 		FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
@@ -67,23 +78,23 @@ function module.new(
 		Archivable = true,
 		Sandboxed = false,
 	}) :: TextLabel
-	
+
 	if not YPadding then
 		YPadding = 0
 	end
-		
+
 	local function updateSize()
 		Main.Size = InitialSize + UDim2.new(0, 0, 0, Main.TextBounds.Y + YPadding*2)
 	end
 	updateSize()
 	Main:GetPropertyChangedSignal("Text"):Connect(updateSize)
-	
+
 	local lastParentConnection = nil
-	
+
 	if parent:IsA("GuiObject") then
 		lastParentConnection = parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateSize)
 	end
-	
+
 	Main:GetPropertyChangedSignal("Parent"):Connect(function(newParent)
 		if lastParentConnection then
 			lastParentConnection:Disconnect()
@@ -93,7 +104,7 @@ function module.new(
 			lastParentConnection = newParent:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateSize)
 		end
 	end)
-	
+
 	return Main
 end
 
